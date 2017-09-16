@@ -1,2 +1,2 @@
-# helix
-interest rate modeling
+# Project Helix
+Multi-factor interest rate modeling
