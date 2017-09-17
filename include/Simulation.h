@@ -55,7 +55,9 @@ class Simulation{
         Simulation();
         Simulation(double, double, int, int);
         ~Simulation();
-
+         
+        /* match_dims = false(default): Dimensions of Random Generator (paths, dims) is [ 1, nthreads ]
+         * match_dims = true: Dimensions of Random Generator (paths, dims) is the same as those of target random matrix  */
         void ugen(mat3d & rand_mtrx, int nthreads, bool match_dims=false);//populate 3D matrix(double) with uniformly distributed number, i.i.d
         void ngen(mat3d &, int, bool match_dims=false);//populate 3D matrix(double) with uniformly distributed number, i.i.d
         

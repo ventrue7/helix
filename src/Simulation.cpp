@@ -43,11 +43,6 @@ void Simulation::fitGenerator(int npaths, int ndims){
 //[&] captures all automatic variables odr-used in the body of the lambda by reference
 //[=] captures all automatic variables odr-used in the body of the lambda by value
 //[] captures nothing/
-
-/*
- * match_dims = false(default): Dimensions of Random Generator (paths, dims) is [ 1, nthreads ]
- * match_dims = true: Dimensions of Random Generator (paths, dims) is the same as those of target random matrix 
- * */
 void Simulation::ugen(mat3d & rand_mtrx, int nthreads, bool match_dims){
     if (nthreads < 1){
        nthreads = thread::hardware_concurrency();
