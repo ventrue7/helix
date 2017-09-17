@@ -1,5 +1,4 @@
 # Project Helix
------
 --------------
-1234
-Multi-factor interest rate modeling
+
+This project is dedicated for multi-factor interest rate models
