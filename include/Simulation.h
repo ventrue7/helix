@@ -36,6 +36,7 @@
 #include "Rand.h"
 #include "Matrix.h"
 #include <thread>
+#include <cmath>
 
 using namespace std;
 
@@ -55,8 +56,8 @@ class Simulation{
         Simulation(double, double, int, int);
         ~Simulation();
 
-        void ugen(mat3d &, int );//populate 3D matrix(double) with uniformly distributed number, i.i.d
-        void ngen(mat3d &, int );//populate 3D matrix(double) with uniformly distributed number, i.i.d
+        void ugen(mat3d & rand_mtrx, int nthreads, bool match_dims=false);//populate 3D matrix(double) with uniformly distributed number, i.i.d
+        void ngen(mat3d &, int, bool match_dims=false);//populate 3D matrix(double) with uniformly distributed number, i.i.d
         
         Rand<double> * getGenerator();
 };

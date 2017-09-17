@@ -43,57 +43,108 @@ void Simulation::fitGenerator(int npaths, int ndims){
 //[&] captures all automatic variables odr-used in the body of the lambda by reference
 //[=] captures all automatic variables odr-used in the body of the lambda by value
 //[] captures nothing/
-void Simulation::ugen(mat3d & random_matrix, int nthreads){
-    fitGenerator(random_matrix.npaths, random_matrix.ndims);
-     
-    if (nthreads<1) {nthreads = thread::hardware_concurrency();}
-    
+
+/*
+ * match_dims = false(default): Dimensions of Random Generator (paths, dims) is [ 1, nthreads ]
+ * match_dims = true: Dimensions of Random Generator (paths, dims) is the same as those of target random matrix 
+ * */
+void Simulation::ugen(mat3d & rand_mtrx, int nthreads, bool match_dims){
+    if (nthreads < 1){
+       nthreads = thread::hardware_concurrency();
+    }else if (nthreads > rand_mtrx.npaths){
+       nthreads = rand_mtrx.npaths;
+    }
+
     switch (nthreads){
         case 1: 
         // optimized for single threade(use main thread to avoid overhead)
-            int dim, path, term;
-            for (dim=0; dim<random_matrix.ndims; ++dim){
-                for (path=0; path<random_matrix.npaths;++path){
-                    for (term=0; term<random_matrix.nterms;++term){
-                        random_matrix[dim][path][term] = Generator->urand(dim, path);
+           if (match_dims){
+              fitGenerator(rand_mtrx.npaths, rand_mtrx.ndims);
+              int dim, path, term;
+              for (dim=0; dim<rand_mtrx.ndims; ++dim){
+                 for (path=0; path<rand_mtrx.npaths;++path){
+                    for (term=0; term<rand_mtrx.nterms;++term){
+                       rand_mtrx[dim][path][term] = Generator->urand(dim, path);
                     }
-                }
-            }
-            break;
+                 }
+              }
+           }else{
+              fitGenerator(1, 1);
+              int extra_paths = rand_mtrx.npaths % nthreads;
+              int paths_per_thread = (rand_mtrx.npaths - extra_paths)/nthreads;
+
+              int dim, path, term;
+              for (dim=0; dim<rand_mtrx.ndims; ++dim){
+                 for (path=0; path<rand_mtrx.npaths;++path){
+                    for (term=0; term<rand_mtrx.nterms;++term){
+                       rand_mtrx[dim][path][term] = Generator->urand(1, 1);
+                    }
+                 }
+              }
+           }
+           break;
+           
 
         default:
-            if (nthreads> random_matrix.npaths){
-                nthreads = random_matrix.npaths;
-            }
-            int extra_paths = random_matrix.npaths % nthreads;
-            int paths_per_thread = (random_matrix.npaths - extra_paths)/nthreads;
-
+            int extra_paths = rand_mtrx.npaths % nthreads;
+            int paths_per_thread = (rand_mtrx.npaths - extra_paths)/nthreads;
+            
             thread * threads = new thread[nthreads];
-            int t;
-            for (t = 0; t<(nthreads-1); ++t){
-                threads[t] = thread([&](int begin, int end)->void{
-                    int dim, path, term;
-                    for (dim=0; dim<random_matrix.ndims; ++dim){
-                        for (path=begin; path<end; ++path){
-                            for (term=0; term<random_matrix.nterms; ++term){
-                                random_matrix[dim][path][term] = Generator->urand(dim, path);
-                            }
+            if (match_dims){
+               fitGenerator(rand_mtrx.npaths, rand_mtrx.ndims);
+               int t;
+               for (t = 0; t<(nthreads-1); ++t){
+                  threads[t] = thread([&](int begin, int end)->void{
+                        int dim, path, term;
+                        for (dim=0; dim<rand_mtrx.ndims; ++dim){
+                           for (path=begin; path<end; ++path){
+                              for (term=0; term<rand_mtrx.nterms; ++term){
+                                 rand_mtrx[dim][path][term] = Generator->urand(dim, path);
+                              }
+                           }
                         }
-                    }
-                     
-                }, t*paths_per_thread, (t+1)*paths_per_thread);
-            }
+                  }, t*paths_per_thread, (t+1)*paths_per_thread);
+               }
 
-            threads[nthreads-1] = thread([&]()->void{
-                int dim, path, term;
-                for (dim=0; dim<random_matrix.ndims; ++dim){
-                    for (path = (nthreads-1)*paths_per_thread; path < random_matrix.npaths; ++path){
-                        for (term=0; term<random_matrix.nterms; ++term){
-                            random_matrix[dim][path][term] = Generator->urand(dim, path);
+               threads[nthreads-1] = thread([&]()->void{
+                     int dim, path, term;
+                     for (dim=0; dim<rand_mtrx.ndims; ++dim){
+                        for (path = (nthreads-1)*paths_per_thread; path < rand_mtrx.npaths; ++path){
+                           for (term=0; term<rand_mtrx.nterms; ++term){
+                              rand_mtrx[dim][path][term] = Generator->urand(dim, path);
+                           }
                         }
-                    }
-                }
-            });
+                     }
+               });
+
+            }else{
+               fitGenerator(1, nthreads);
+               int t;
+               for (t = 0; t<(nthreads-1); ++t){
+                  threads[t] = thread([&](int begin, int end)->void{
+                        int dim, path, term;
+                        for (dim=0; dim<rand_mtrx.ndims; ++dim){
+                           for (path=begin; path<end; ++path){
+                              for (term=0; term<rand_mtrx.nterms; ++term){
+                                 rand_mtrx[dim][path][term] = Generator->urand(1, t);
+                              }
+                           }
+                        }
+                  }, t*paths_per_thread, (t+1)*paths_per_thread);
+               }
+
+               threads[nthreads-1] = thread([&]()->void{
+                     int dim, path, term;
+                     for (dim=0; dim<rand_mtrx.ndims; ++dim){
+                        for (path = (nthreads-1)*paths_per_thread; path < rand_mtrx.npaths; ++path){
+                           for (term=0; term<rand_mtrx.nterms; ++term){
+                              rand_mtrx[dim][path][term] = Generator->urand(dim, (nthread-1));
+                           }
+                        }
+                     }
+               });
+            }
+            
 
             for (t=0; t < nthreads; ++t){
                 threads[t].join();
@@ -104,57 +155,103 @@ void Simulation::ugen(mat3d & random_matrix, int nthreads){
     }
 }
 
-void Simulation::ngen(mat3d & random_matrix, int nthreads){//nthreads<=random_matrix.npaths 
-    fitGenerator(random_matrix.npaths, random_matrix.ndims);
+void Simulation::ngen(mat3d & rand_mtrx, int nthreads, bool match_dims){//nthreads<=rand_mtrx.npaths
+   if (nthreads < 1){
+       nthreads = thread::hardware_concurrency();
+    }else if (nthreads > rand_mtrx.npaths){
+       nthreads = rand_mtrx.npaths;
+    }
 
-    if (nthreads<1) {nthreads = thread::hardware_concurrency();}
-    
     switch (nthreads){
         case 1: 
-        // optimized for single threaded (use main thread to avoid overhead)
-            int dim, path, term;
-            for (dim=0; dim<random_matrix.ndims; ++dim){
-                for (path=0; path<random_matrix.npaths;++path){
-                    for (term=0; term<random_matrix.nterms;++term){
-                        random_matrix[dim][path][term] = Generator->nrand(dim, path);
+        // optimized for single threade(use main thread to avoid overhead)
+           if (match_dims){
+              fitGenerator(rand_mtrx.npaths, rand_mtrx.ndims);
+              int dim, path, term;
+              for (dim=0; dim<rand_mtrx.ndims; ++dim){
+                 for (path=0; path<rand_mtrx.npaths;++path){
+                    for (term=0; term<rand_mtrx.nterms;++term){
+                       rand_mtrx[dim][path][term] = Generator->nrand(dim, path);
                     }
-                }
-            }
-            break;
+                 }
+              }
+           }else{
+              fitGenerator(1, 1);
+              int extra_paths = rand_mtrx.npaths % nthreads;
+              int paths_per_thread = (rand_mtrx.npaths - extra_paths)/nthreads;
+
+              int dim, path, term;
+              for (dim=0; dim<rand_mtrx.ndims; ++dim){
+                 for (path=0; path<rand_mtrx.npaths;++path){
+                    for (term=0; term<rand_mtrx.nterms;++term){
+                       rand_mtrx[dim][path][term] = Generator->nrand(1, 1);
+                    }
+                 }
+              }
+           }
+           break;
+           
 
         default:
-            if (nthreads> random_matrix.npaths){
-                nthreads = random_matrix.npaths;
-            }
-            int extra_paths = random_matrix.npaths % nthreads;
-            int paths_per_thread = (random_matrix.npaths - extra_paths)/nthreads;
-
+            int extra_paths = rand_mtrx.npaths % nthreads;
+            int paths_per_thread = (rand_mtrx.npaths - extra_paths)/nthreads;
+            
             thread * threads = new thread[nthreads];
-            int t;
-            for (t = 0; t<(nthreads-1); ++t){
-                threads[t] = thread([&](int begin, int end)->void{
-                    int dim, path, term;
-                    for (dim=0; dim<random_matrix.ndims; ++dim){
-                        for (path=begin; path<end; ++path){
-                            for (term=0; term<random_matrix.nterms; ++term){
-                                random_matrix[dim][path][term] = Generator->nrand(dim, path);
-                            }
+            if (match_dims){
+               fitGenerator(rand_mtrx.npaths, rand_mtrx.ndims);
+               int t;
+               for (t = 0; t<(nthreads-1); ++t){
+                  threads[t] = thread([&](int begin, int end)->void{
+                        int dim, path, term;
+                        for (dim=0; dim<rand_mtrx.ndims; ++dim){
+                           for (path=begin; path<end; ++path){
+                              for (term=0; term<rand_mtrx.nterms; ++term){
+                                 rand_mtrx[dim][path][term] = Generator->nrand(dim, path);
+                              }
+                           }
                         }
-                    }
-                     
-                }, t*paths_per_thread, (t+1)*paths_per_thread);
-            }
+                  }, t*paths_per_thread, (t+1)*paths_per_thread);
+               }
 
-            threads[nthreads-1] = thread([&]()->void{
-                int dim, path, term;
-                for (dim=0; dim<random_matrix.ndims; ++dim){
-                    for (path=(nthreads-1)*paths_per_thread; path<random_matrix.npaths; ++path){
-                        for (term=0; term<random_matrix.nterms; ++term){
-                            random_matrix[dim][path][term] = Generator->nrand(dim, path);
+               threads[nthreads-1] = thread([&]()->void{
+                     int dim, path, term;
+                     for (dim=0; dim<rand_mtrx.ndims; ++dim){
+                        for (path = (nthreads-1)*paths_per_thread; path < rand_mtrx.npaths; ++path){
+                           for (term=0; term<rand_mtrx.nterms; ++term){
+                              rand_mtrx[dim][path][term] = Generator->nrand(dim, path);
+                           }
                         }
-                    }
-                }
-            });
+                     }
+               });
+
+            }else{
+               fitGenerator(1, nthreads);
+               int t;
+               for (t = 0; t<(nthreads-1); ++t){
+                  threads[t] = thread([&](int begin, int end)->void{
+                        int dim, path, term;
+                        for (dim=0; dim<rand_mtrx.ndims; ++dim){
+                           for (path=begin; path<end; ++path){
+                              for (term=0; term<rand_mtrx.nterms; ++term){
+                                 rand_mtrx[dim][path][term] = Generator->nrand(1, t);
+                              }
+                           }
+                        }
+                  }, t*paths_per_thread, (t+1)*paths_per_thread);
+               }
+
+               threads[nthreads-1] = thread([&]()->void{
+                     int dim, path, term;
+                     for (dim=0; dim<rand_mtrx.ndims; ++dim){
+                        for (path = (nthreads-1)*paths_per_thread; path < rand_mtrx.npaths; ++path){
+                           for (term=0; term<rand_mtrx.nterms; ++term){
+                              rand_mtrx[dim][path][term] = Generator->nrand(dim, (nthread-1));
+                           }
+                        }
+                     }
+               });
+            }
+            
 
             for (t=0; t < nthreads; ++t){
                 threads[t].join();
