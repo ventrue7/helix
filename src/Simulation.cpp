@@ -1,15 +1,17 @@
 #include "Simulation.h"
 
-Simulation::Simulation(){
+Simulation::Simulation():Generator(nullptr){
     mu = 0.0;
     sigma = 1.0;
 }
 
-Simulation::Simulation(double mu, double sigma, int npaths, int ndims):mu(mu),sigma(sigma),Generator(new Rand<double>(npaths,ndims,mu,sigma)) {
+Simulation::Simulation(double mu, double sigma):mu(mu),sigma(sigma),Generator(nullptr){
 }
 
 Simulation::~Simulation(){
-    delete Generator;
+    if (Generator!=nullptr){
+       delete Generator;
+    }
 }
 //private
 void Simulation::constructGenerator(double mu, double sigma, int npaths, int ndims){
@@ -25,7 +27,7 @@ void Simulation::destoryGenerator(){
 //private
 //make sure generator has the same dimensions as those of the random matrix specified by user
 void Simulation::fitGenerator(int npaths, int ndims){
-    if (Generator){//check if generator has been instantiated
+    if (Generator!=nullptr){//check if generator has been instantiated
         if (Generator->Paths()!=npaths || Generator->Dimensions()!=ndims){
             destoryGenerator();
             constructGenerator(this->mu, this->sigma, npaths, ndims);
@@ -72,7 +74,7 @@ void Simulation::ugen(mat3d & rand_mtrx, int nthreads, bool match_dims){
               for (dim=0; dim<rand_mtrx.ndims; ++dim){
                  for (path=0; path<rand_mtrx.npaths;++path){
                     for (term=0; term<rand_mtrx.nterms;++term){
-                       rand_mtrx[dim][path][term] = Generator->urand(1, 1);
+                       rand_mtrx[dim][path][term] = Generator->urand(0, 0);
                     }
                  }
               }
@@ -113,14 +115,14 @@ void Simulation::ugen(mat3d & rand_mtrx, int nthreads, bool match_dims){
                });
 
             }else{
-               fitGenerator(1, nthreads);
+               fitGenerator(nthreads, 1);
                for (t = 0; t<(nthreads-1); ++t){
                   threads[t] = thread([&](int begin, int end)->void{
                         int dim, path, term;
                         for (dim=0; dim<rand_mtrx.ndims; ++dim){
                            for (path=begin; path<end; ++path){
                               for (term=0; term<rand_mtrx.nterms; ++term){
-                                 rand_mtrx[dim][path][term] = Generator->urand(1, t);
+                                 rand_mtrx[dim][path][term] = Generator->urand(0, t);
                               }
                            }
                         }
@@ -132,7 +134,7 @@ void Simulation::ugen(mat3d & rand_mtrx, int nthreads, bool match_dims){
                      for (dim=0; dim<rand_mtrx.ndims; ++dim){
                         for (path = (nthreads-1)*paths_per_thread; path < rand_mtrx.npaths; ++path){
                            for (term=0; term<rand_mtrx.nterms; ++term){
-                              rand_mtrx[dim][path][term] = Generator->urand(dim, (nthreads-1));
+                              rand_mtrx[dim][path][term] = Generator->urand(0, (nthreads-1));
                            }
                         }
                      }
@@ -150,7 +152,7 @@ void Simulation::ugen(mat3d & rand_mtrx, int nthreads, bool match_dims){
 }
 
 void Simulation::ngen(mat3d & rand_mtrx, int nthreads, bool match_dims){//nthreads<=rand_mtrx.npaths
-   if (nthreads < 1){
+    if (nthreads < 1){
        nthreads = thread::hardware_concurrency();
     }else if (nthreads > rand_mtrx.npaths){
        nthreads = rand_mtrx.npaths;
@@ -178,7 +180,7 @@ void Simulation::ngen(mat3d & rand_mtrx, int nthreads, bool match_dims){//nthrea
               for (dim=0; dim<rand_mtrx.ndims; ++dim){
                  for (path=0; path<rand_mtrx.npaths;++path){
                     for (term=0; term<rand_mtrx.nterms;++term){
-                       rand_mtrx[dim][path][term] = Generator->nrand(1, 1);
+                       rand_mtrx[dim][path][term] = Generator->nrand(0, 0);
                     }
                  }
               }
@@ -219,14 +221,14 @@ void Simulation::ngen(mat3d & rand_mtrx, int nthreads, bool match_dims){//nthrea
                });
 
             }else{
-               fitGenerator(1, nthreads);
+               fitGenerator(nthreads, 1);
                for (t = 0; t<(nthreads-1); ++t){
                   threads[t] = thread([&](int begin, int end)->void{
                         int dim, path, term;
                         for (dim=0; dim<rand_mtrx.ndims; ++dim){
                            for (path=begin; path<end; ++path){
                               for (term=0; term<rand_mtrx.nterms; ++term){
-                                 rand_mtrx[dim][path][term] = Generator->nrand(1, t);
+                                 rand_mtrx[dim][path][term] = Generator->nrand(0, t);
                               }
                            }
                         }
@@ -238,7 +240,7 @@ void Simulation::ngen(mat3d & rand_mtrx, int nthreads, bool match_dims){//nthrea
                      for (dim=0; dim<rand_mtrx.ndims; ++dim){
                         for (path = (nthreads-1)*paths_per_thread; path < rand_mtrx.npaths; ++path){
                            for (term=0; term<rand_mtrx.nterms; ++term){
-                              rand_mtrx[dim][path][term] = Generator->nrand(dim, (nthreads-1));
+                              rand_mtrx[dim][path][term] = Generator->nrand(0, (nthreads-1));
                            }
                         }
                      }
