@@ -1,18 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
-#include <map>
-#include <random>
-#include <math.h>
-#include <chrono>
-#include <thread>
-#include <limits>
 
-
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "Rand.h"
 #include "Simulation.h"
 
 using namespace std;

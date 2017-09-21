@@ -28,7 +28,7 @@ struct mat3d{
 
     //allocate and zero memory dynamically
     mat3d(int terms, int paths, int dims):value(new double **[dims]),nterms(terms),npaths(paths),ndims(dims){
-        int dim, path, term;
+        int dim, path;
         for (dim=0; dim<ndims; ++dim){
             value[dim] = new double*[npaths];
             for (path=0; path<npaths; ++path){
