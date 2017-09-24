@@ -43,7 +43,7 @@ export:
 	mv *.exe ${EXPORT}
 
 extract:
-	make purify clean import && make all export purge
+	make purge clean import && make all export purge
 
 run:
 	${EXPORT}/${EXECUTABLES}.exe
