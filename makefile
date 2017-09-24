@@ -10,19 +10,30 @@ std=-std=c++11
 thread=-pthread
 #numeric=-fext-numeric-literals #enable numeric literals
 
+CPPFLAGS=$(debug)
+
 EXPORT=win_x64
 #script
 all: ${EXECUTABLES}
 
 #$@: first %, $^: all the rest object files, $<: %.cpp
-%: %.cpp Matrix.h Rand.h Simulation.h Simulation.cpp
+#%: %.cpp Matrix.h Rand.h Simulation.h Simulation.cpp
+#	${cc} ${debug} ${std} ${thread} -I. -o $@ $^
+
+TestSimulation: TestSimulation.o Simulation.o
 	${cc} ${debug} ${std} ${thread} -I. -o $@ $^
 
-.PHONY: clean purify import export extract run
-clean:
-	rm -f ${EXECUTABLES}.o ${EXECUTABLES}.exe
+TestSimulation.cpp: Simulation.h
 
-purify:
+Simulation.h: Matrix.h Rand.h
+
+Simulation.cpp: Simulation.h
+
+.PHONY: clean purge import export extract run
+clean:
+	rm -f *.o *.exe
+
+purge:
 	rm -f *.h *.cpp
 
 import:
@@ -32,7 +43,7 @@ export:
 	mv *.exe ${EXPORT}
 
 extract:
-	make purify clean import && make all export purify
+	make purify clean import && make all export purge
 
 run:
 	${EXPORT}/${EXECUTABLES}.exe

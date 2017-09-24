@@ -33,8 +33,8 @@
 #ifndef SIMULATION_H
 #define SIMULATION_H
 
-#include "Rand.h"
 #include "Matrix.h"
+#include "Rand.h"
 #include <thread>
 #include <cmath>
 //#include<iostream>
