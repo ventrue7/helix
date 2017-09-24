@@ -16,7 +16,7 @@ EXPORT=win_x64
 #script
 all: ${EXECUTABLES}
 
-#$@: first %, $^: all the rest object files, $<: %.cpp
+#$@: left%, $^: right(all), $<: right(first)
 #%: %.cpp Matrix.h Rand.h Simulation.h Simulation.cpp
 #	${cc} ${debug} ${std} ${thread} -I. -o $@ $^
 
