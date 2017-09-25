@@ -46,7 +46,7 @@ class Simulation{
     private:
         Rand<double> * Generator;
 
-        void constructGenerator(double, double, int, int);
+        void constructGenerator(int, int);
         void destoryGenerator();
         void fitGenerator(int, int);
 
@@ -56,7 +56,8 @@ class Simulation{
         Simulation();
         Simulation(double, double);
         ~Simulation();
-         
+        
+        void setRandAttributes(double=0.0, double=1.0);
         /* match_dims = false(default): Dimensions of Random Generator (paths, dims) is [ 1, nthreads ]
          * match_dims = true: Dimensions of Random Generator (paths, dims) is the same as those of target random matrix  */
         void ugen(mat3d &, int, bool=false);//populate 3D matrix(double) with uniformly distributed number, i.i.d

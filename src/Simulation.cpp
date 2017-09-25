@@ -14,15 +14,15 @@ Simulation::~Simulation(){
     }
 }
 //private
-void Simulation::constructGenerator(double mu, double sigma, int npaths, int ndims){
-    this->mu = mu;
-    this->sigma = sigma;
-    this->Generator = new Rand<double>(npaths, ndims, mu, sigma);
+void Simulation::constructGenerator(int npaths, int ndims){
+    this->Generator = new Rand<double>(npaths, ndims, this->mu, this->sigma);
 }
 
 //private
 void Simulation::destoryGenerator(){
-   delete Generator; 
+   if (Generator!=nullptr){
+      delete Generator; 
+   }
 }
 //private
 //make sure generator has the same dimensions as those of the random matrix specified by user
@@ -30,11 +30,18 @@ void Simulation::fitGenerator(int npaths, int ndims){
     if (Generator!=nullptr){//check if generator has been instantiated
         if (Generator->Paths()!=npaths || Generator->Dimensions()!=ndims){
             destoryGenerator();
-            constructGenerator(this->mu, this->sigma, npaths, ndims);
+            constructGenerator(npaths, ndims);
         }
     }else{
-        constructGenerator(this->mu, this->sigma, npaths, ndims);
+        constructGenerator(npaths, ndims);
     }
+}
+
+//public
+//--------
+void Simulation::setRandAttributes(double mu, double sigma){
+   this->mu = mu;
+   this->mu = sigma;
 }
 
 //Multithreaded random matrix generation processes:
