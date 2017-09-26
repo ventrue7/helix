@@ -115,8 +115,8 @@ class G2PP : public RateModel{
         Error Error;
         
         //Constructor: pass in terms, npaths, ndimensions + distributional paramters of simulation
-        G2PP();
-        G2PP(Curve *);
+        G2PP(int, int, int);
+        G2PP(int, int, int, Curve *);
         ~G2PP();
 
         //----Calculation Services-----

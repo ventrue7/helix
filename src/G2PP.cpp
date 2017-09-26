@@ -1,19 +1,23 @@
 #include "G2PP.h"
 
-G2PP::G2PP()
+G2PP::G2PP(int dim, int path, int term)
     : RateModel(RateModelType::RMT_G2PP, "G2++: Gaussian 2-factor short rate model"),
     Sim(new Simulation()),
     YieldCurve(nullptr),
-    DIRTY(0)
+    Samples(term, path, dim),
+    DIRTY(0),
+    Error(1,"Succeed")
 {
     this->markDirtyAll();
 }
 
-G2PP::G2PP(Curve * curve)
+G2PP::G2PP(int dim, int path, int term, Curve * curve)
     : RateModel(RateModelType::RMT_G2PP, "G2++: Gaussian 2-factor short rate model"),
     Sim(new Simulation()),
     YieldCurve(curve),
-    DIRTY(0)
+    Samples(term, path, dim),
+    DIRTY(0),
+    Error(1,"Succeed")
 {
     this->markDirtyAll();
 }
@@ -30,7 +34,7 @@ double G2PP::V(double t, double T){
 
 
 //----Getters & Setters-----
-Simulation* getSimEngine(){
+Simulation* G2PP::getSimEngine(){
    return Sim;
 }
 
