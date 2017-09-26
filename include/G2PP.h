@@ -74,7 +74,6 @@ Volatilies:               [ sigma1    ,      sigma2 ]
 #ifndef G2PP_H
 #define G2PP_H
 
-//#include <math.h>
 #include <iostream>
 #include "Simulation.h"
 #include "Curve.h"
@@ -86,11 +85,12 @@ class G2PP : public RateModel{
         Curve      *YieldCurve; //Yield curve, contains current market condition, and inter/extrapolation utilities
 
         mat3d      *Samples;     //Random matrix containing: dimension 1: z1~N(0,1), i.i.d, dimension 2: z2~N(0,1), i.i.d
-        int        DIRTY;       //binary process recalcuation flag
+        int        Dirty;        //binary process recalcuation flag
        
         //Model parameters 
-        double *params;
-        int    nthreads;    //Number of threads for simulation
+        double *Coefs;
+        int    *Flags;
+
     public:
         Error Error;
         
@@ -100,15 +100,17 @@ class G2PP : public RateModel{
         ~G2PP();
 
         //----Calculation Services-----
-        double resize();
-        double M(double x, double y);
+        double M(double, double, double, double);
         double V(double, double);
 
         //----Getters & Setters-----
+        void setParameter(Parameter, double);
+        void setParameters(Parameter *, double *, int);
         Simulation* getSimEngine();
         
 
         //-----Simulation Procedural Step Components Recalculation Bitwise Marker/Verifier-----
+        void markDirtyFrom(int);
         void markDirty(int);
         void markDirtyAll();
         void clearDirty(int);
