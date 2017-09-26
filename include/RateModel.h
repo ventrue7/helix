@@ -24,14 +24,14 @@
 using namespace std;
 
 struct Error{
-    int SuccessCode;
+    int Code;
     string Message;
 
     int Line;
     string File;
     string Function;
 
-    Error(int code, string message): SuccessCode(code), Message(message){}
+    Error(int code, string message): Code(code), Message(message){}
 };
 
 class RateModel{
