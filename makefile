@@ -17,7 +17,7 @@ EXPORT=win_x64
 all: ${EXECUTABLES}
 
 #$@: left%, $^: right(all), $<: right(first)
-#%: %.cpp Matrix.h Rand.h Simulation.h Simulation.cpp
+# %: %.cpp Matrix.h Rand.h Simulation.h Simulation.cpp G2Enums.h RateModel.h G2PP.h G2PP.cpp
 #	${cc} ${debug} ${std} ${thread} -I. -o $@ $^
 
 TestSimulation: TestSimulation.o Curve.o Simulation.o G2PP.o
@@ -28,6 +28,8 @@ TestSimulation.cpp: G2PP.h
 G2PP.h: Simulation.h Curve.h RateModel.h
 
 G2PP.cpp: G2PP.h
+
+RateModel.h: G2Enums.h
 
 Curve.cpp: Curve.h
 
