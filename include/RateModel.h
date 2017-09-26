@@ -22,7 +22,7 @@
 
 using namespace std;
 
-enum RateModelType {G2pp, Black};
+enum RateModelType {RMT_G2PP=0, RMT_BLACK, NUM_MODEL_TYPES};
 
 struct Error{
     int SuccessCode;
@@ -30,6 +30,7 @@ struct Error{
 
     int Line;
     string File;
+    string Function;
 
     Error(int code, string message): SuccessCode(code), Message(message){}
 };
@@ -52,6 +53,10 @@ class RateModel{
 
         virtual string getModelDescription(){
             return Description;
+        }
+
+        virtual double getPV(double t, double T){
+           return 0.0;
         }
 
 };
