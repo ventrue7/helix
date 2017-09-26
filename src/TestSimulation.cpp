@@ -3,7 +3,6 @@
 #include <string>
 
 #include "G2PP.h"
-#include "Simulation.h"
 
 using namespace std;
 
@@ -64,8 +63,9 @@ int main(){
     }
 
     delete Sim;
-    RateModel *RateModel = new G2PP(1, 1, 1);
+    RateModel *RateModel = new G2PP();
     G2PP * Model = dynamic_cast<G2PP *>(RateModel);
+    Model->resize();
     cout<<Model->getModelDescription()<<endl;
     delete RateModel;
     return 0;
