@@ -19,10 +19,9 @@
 #define RATEMODEL_H
 
 #include <string>
+#include "G2Enums.h"
 
 using namespace std;
-
-enum RateModelType {RMT_G2PP=0, RMT_BLACK, NUM_MODEL_TYPES};
 
 struct Error{
     int SuccessCode;
