@@ -65,7 +65,6 @@ int main(){
     delete Sim;
     RateModel *RateModel = new G2PP();
     G2PP * Model = dynamic_cast<G2PP *>(RateModel);
-    Model->resize();
     cout<<Model->getModelDescription()<<endl;
     delete RateModel;
     return 0;
