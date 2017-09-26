@@ -20,10 +20,16 @@ all: ${EXECUTABLES}
 #%: %.cpp Matrix.h Rand.h Simulation.h Simulation.cpp
 #	${cc} ${debug} ${std} ${thread} -I. -o $@ $^
 
-TestSimulation: TestSimulation.o Simulation.o
+TestSimulation: TestSimulation.o Curve.o Simulation.o
 	${cc} ${debug} ${std} ${thread} -I. -o $@ $^
 
-TestSimulation.cpp: Simulation.h
+TestSimulation.cpp: G2PP.h
+
+G2PP.h: Simulation.h Curve.h RateModel.h
+
+G2PP.cpp: G2PP.h
+
+Curve.cpp: Curve.h
 
 Simulation.h: Matrix.h Rand.h
 
