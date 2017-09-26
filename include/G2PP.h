@@ -80,46 +80,27 @@ Volatilies:               [ sigma1    ,      sigma2 ]
 #include "Curve.h"
 #include "RateModel.h"
 
-enum Procedure{
-   PROC_SIMULATION=1, 
-   PROC_CORRELATION=2, 
-   PROC_EVOLUTION=4
-};
-
-enum Parameter{
-   PARAM_A=0, 
-   PARAM_B, 
-   PARAM_SIGMA_1, 
-   PARAM_SIGMA_2, 
-   PARAM_RHO,
-   PARAM_K,
-   PARAM_THETA,
-   PARAM_XI
-};
-
-enum Dimension{
-   DIM_X=0, 
-   DIM_Y, 
-   DIM_VOL
-};
-
 class G2PP : public RateModel{
     private:
         Simulation *Sim;        //Simulation Core, responsible for generating random numbers in bulk
         Curve      *YieldCurve; //Yield curve, contains current market condition, and inter/extrapolation utilities
 
-        mat3d      Samples;     //Random matrix containing: dimension 1: z1~N(0,1), i.i.d, dimension 2: z2~N(0,1), i.i.d
-        int        nthreads;    //Number of threads for simulation
+        mat3d      *Samples;     //Random matrix containing: dimension 1: z1~N(0,1), i.i.d, dimension 2: z2~N(0,1), i.i.d
         int        DIRTY;       //binary process recalcuation flag
+       
+        //Model parameters 
+        double *params;
+        int    nthreads;    //Number of threads for simulation
     public:
         Error Error;
         
-        //Constructor: pass in terms, npaths, ndimensions + distributional paramters of simulation
-        G2PP(int, int, int);
-        G2PP(int, int, int, Curve *);
+        //Constructor: pass in terms, npaths, ndims + distributional paramters of simulation
+        G2PP();
+        G2PP(Curve *);
         ~G2PP();
 
         //----Calculation Services-----
+        double resize();
         double M(double x, double y);
         double V(double, double);
 

@@ -1,29 +1,42 @@
 #include "G2PP.h"
 
-G2PP::G2PP(int dim, int path, int term)
+G2PP::G2PP()
     : RateModel(RateModelType::RMT_G2PP, "G2++: Gaussian 2-factor short rate model"),
     Sim(new Simulation()),
     YieldCurve(nullptr),
-    Samples(term, path, dim),
+    Samples(nullptr),
     DIRTY(0),
+    params(new double[NUM_PARAMS]{0}),
+    nthreads(1),
     Error(1,"Succeed")
 {
     this->markDirtyAll();
 }
 
-G2PP::G2PP(int dim, int path, int term, Curve * curve)
+G2PP::G2PP(Curve * curve)
     : RateModel(RateModelType::RMT_G2PP, "G2++: Gaussian 2-factor short rate model"),
     Sim(new Simulation()),
     YieldCurve(curve),
-    Samples(term, path, dim),
+    Samples(nullptr),
     DIRTY(0),
+    params(new double[NUM_PARAMS]{0}),
+    nthreads(1),
     Error(1,"Succeed")
 {
     this->markDirtyAll();
 }
 
 G2PP::~G2PP(){
+    if (Samples){
+        delete Samples;
+    }
+    delete [] params;
     delete Sim;
+}
+
+double G2PP::resize(){
+    delete Samples;
+    Samples = new mat3d(5,100,100);
 }
 
 double G2PP::M(double x, double y){
@@ -46,7 +59,7 @@ void G2PP::markDirty(int step){
 
 void G2PP::markDirtyAll(){
     int i;
-    for (i = Procedure::PROC_SIMULATION; i <= Procedure::PROC_EVOLUTION; i <<= 1u){
+    for (i = PROC_SIMULATION; i <= PROC_EVOLUTION; i <<= 1u){
         DIRTY |= i;
     }
 }
