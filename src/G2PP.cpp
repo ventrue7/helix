@@ -35,7 +35,9 @@ G2PP::~G2PP(){
 }
 
 double G2PP::resize(){
-    delete Samples;
+    if (Samples){
+        delete Samples;
+    }
     Samples = new mat3d(5,100,100);
 }
 
