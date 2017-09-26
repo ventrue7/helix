@@ -21,9 +21,11 @@
 enum RateModelType {RMT_G2PP=0, RMT_BLACK, NUM_MODEL_TYPES};
 
 enum Procedure{
-   PROC_SIMULATION=1, 
-   PROC_CORRELATION=2, 
-   PROC_EVOLUTION=4
+   PROC_GENERATION=1,
+   PROC_EVOLUTION=2,
+   PROC_SIMULATION=4, 
+   PROC_CALCULATION=8, 
+   PROC_END
 };
 
 enum Parameter{
@@ -32,9 +34,6 @@ enum Parameter{
    PARAM_SIGMA_1, 
    PARAM_SIGMA_2, 
    PARAM_RHO,
-   PARAM_K,
-   PARAM_THETA,
-   PARAM_XI,
    NUM_PARAMS
 };
 
