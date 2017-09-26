@@ -9,7 +9,7 @@ Simulation::Simulation(double mu, double sigma):mu(mu),sigma(sigma),Generator(nu
 }
 
 Simulation::~Simulation(){
-    if (Generator!=nullptr){
+    if (Generator){
        delete Generator;
     }
 }
@@ -26,7 +26,7 @@ void Simulation::destoryGenerator(){
 //private
 //make sure generator has the same dimensions as those of the random matrix specified by user
 void Simulation::fitGenerator(int npaths, int ndims){
-    if (Generator!=nullptr){//check if generator has been instantiated
+    if (Generator){//check if generator has been instantiated
         if (Generator->Paths()!=npaths || Generator->Dimensions()!=ndims){
             destoryGenerator();
             constructGenerator(npaths, ndims);
