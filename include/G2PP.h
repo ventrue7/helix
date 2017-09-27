@@ -70,7 +70,6 @@ Volatilies:               [ sigma1    ,      sigma2 ]
 
 */
 
-
 #ifndef G2PP_H
 #define G2PP_H
 
