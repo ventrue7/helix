@@ -12,30 +12,31 @@ thread=-pthread
 
 CPPFLAGS=$(debug)
 
-EXPORT=win_x64
+# EXPORT=win_x64
+EXPORT=linux_x64
 #script
 all: ${EXECUTABLES}
 
 #$@: left%, $^: right(all), $<: right(first)
-# %: %.cpp Matrix.h Rand.h Simulation.h Simulation.cpp G2Enums.h RateModel.h G2PP.h G2PP.cpp
-#	${cc} ${debug} ${std} ${thread} -I. -o $@ $^
-
-TestSimulation: TestSimulation.o Curve.o Simulation.o G2PP.o
+%: %.cpp Matrix.h Rand.h Simulation.h Simulation.cpp G2Enums.h RateModel.h G2PP.h G2PP.cpp
 	${cc} ${debug} ${std} ${thread} -I. -o $@ $^
 
-TestSimulation.cpp: G2PP.h
+# TestSimulation: TestSimulation.o Curve.o Simulation.o G2PP.o
+#	${cc} ${debug} ${std} ${thread} -I. -o $@ $^
 
-G2PP.h: Simulation.h Curve.h RateModel.h
+# TestSimulation.cpp: G2PP.h
 
-G2PP.cpp: G2PP.h
+# G2PP.h: Simulation.h Curve.h RateModel.h
 
-RateModel.h: G2Enums.h
+# G2PP.cpp: G2PP.h
 
-Curve.cpp: Curve.h
+# RateModel.h: G2Enums.h
 
-Simulation.h: Matrix.h Rand.h
+# Curve.cpp: Curve.h
 
-Simulation.cpp: Simulation.h
+# Simulation.h: Matrix.h Rand.h
+
+# Simulation.cpp: Simulation.h
 
 .PHONY: clean purge import export extract run
 clean:
@@ -45,13 +46,13 @@ purge:
 	rm -f *.h *.cpp
 
 import:
-	cp include/* src/* .
+	cp include/*.h src/*.cpp .
 
 export:
-	mv *.exe ${EXPORT}
+	mv ${EXECUTABLES} ${EXPORT}
 
 extract:
 	make purge clean import && make all export purge clean
 
 run:
-	${EXPORT}/${EXECUTABLES}.exe
+	${EXPORT}/${EXECUTABLES}
