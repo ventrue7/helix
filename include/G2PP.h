@@ -92,7 +92,7 @@ class G2PP : public RateModel{
         int    *Flags;
 
     public:
-        Error Error;
+        Error ModelError;
         
         //Constructor: pass in terms, npaths, ndims + distributional paramters of simulation
         G2PP();

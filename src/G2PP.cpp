@@ -8,7 +8,7 @@ G2PP::G2PP()
     Dirty(0),
     Coefs(new double[NUM_PARAMS]{0}),
     Flags(new int[NUM_PARAMS]{PROC_EVOLUTION}),
-    Error(1,"Success!")
+    ModelError(1,"Success!")
 {
     this->markDirtyAll();
 }
@@ -21,7 +21,7 @@ G2PP::G2PP(Curve * curve)
     Dirty(0),
     Coefs(new double[NUM_PARAMS]{0}),
     Flags(new int[NUM_PARAMS]{PROC_EVOLUTION}),
-    Error(1,"Success!")
+    ModelError(1,"Success!")
 {
     this->markDirtyAll();
 }
@@ -82,14 +82,14 @@ void G2PP::setParameter(Parameter key, double value){
 void G2PP::setParameters(Parameter * keys, double * values, int length){
     int i;
     if (length > NUM_PARAMS){
-        Error.Message = "setParameters(): size greater than possible";
-        Error.Code = 0;
+        ModelError.Message = "setParameters(): size greater than possible";
+        ModelError.Code = 0;
 
-        Error.Function = __func__;
-        Error.Line = __LINE__;
-        Error.File = __FILE__;
+        ModelError.Function = __func__;
+        ModelError.Line = __LINE__;
+        ModelError.File = __FILE__;
 
-        throw Error;
+        throw ModelError;
     }
     for (i=0; i<length; ++i){
         setParameter(keys[i], values[i]);
