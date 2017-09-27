@@ -13,7 +13,7 @@ thread=-pthread
 CPPFLAGS=$(debug)
 
 # EXPORT=win_x64
-EXPORT=linux_x64
+EXPORT=linux_ubuntu
 #script
 all: ${EXECUTABLES}
 
