@@ -40,7 +40,6 @@ enum Parameter{
 enum Dimension{
    DIM_X=0, 
    DIM_Y, 
-   DIM_VOL,
    NUM_DIMS
 };
 
