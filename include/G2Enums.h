@@ -24,8 +24,8 @@ enum Procedure{
    PROC_GENERATION=1,
    PROC_EVOLUTION=2,
    PROC_SIMULATION=4, 
-   PROC_CALCULATION=8, 
-   PROC_END
+   PROC_CALCULATION=8,
+   NUM_PROCS
 };
 
 enum Parameter{
@@ -34,7 +34,17 @@ enum Parameter{
    PARAM_SIGMA_1, 
    PARAM_SIGMA_2, 
    PARAM_RHO,
+   PARAM_PC_A,
+   PARAM_PC_B,
    NUM_PARAMS
+};
+
+enum Periphery{
+    SIM_NTERMS=0,
+    SIM_NPATHS,
+    SIM_NDIMS,
+    SIM_NTHREADS,
+    NUM_SIMS
 };
 
 enum Dimension{
@@ -42,6 +52,5 @@ enum Dimension{
    DIM_Y, 
    NUM_DIMS
 };
-
 
 #endif
