@@ -7,6 +7,7 @@ G2PP::G2PP()
     Samples(nullptr),
     Dirty(0),
     Coefs(new double[NUM_PARAMS]{0}),
+    Peris(new int[NUM_SIMS]{2}),
     Flags(new int[NUM_PARAMS]{PROC_EVOLUTION}),
     ModelError(1,"Success!")
 {
@@ -20,6 +21,7 @@ G2PP::G2PP(Curve * curve)
     Samples(nullptr),
     Dirty(0),
     Coefs(new double[NUM_PARAMS]{0}),
+    Peris(new int[NUM_SIMS]{2}),
     Flags(new int[NUM_PARAMS]{PROC_EVOLUTION}),
     ModelError(1,"Success!")
 {
@@ -31,6 +33,7 @@ G2PP::~G2PP(){
         delete Samples;
     }
     delete [] Coefs;
+    delete [] Peris;
     delete [] Flags;
     delete Sim;
 }
@@ -49,6 +52,55 @@ double G2PP::getZCBPrice(double t, double T){
         throw ModelError;
     }
 
+    double a = Coefs[PARAM_A];
+    double b = Coefs[PARAM_B];
+    double vol1 = Coefs[PARAM_SIGMA_1];
+    double vol2 = Coefs[PARAM_SIGMA_2];
+    double rho = Coefs[PARAM_RHO];
+
+    int terms = Peris[SIM_NTERMS];
+    int paths = Peris[SIM_NPATHS];
+    int dims = Peris[SIM_NDIMS];
+    int threads = Peris[SIM_NTHREADS];
+
+    double dt = (double)t/terms;
+    if (Samples){
+        if (Samples->nterms != terms || Samples->npaths != paths){
+            delete Samples;
+            Samples = new mat3d(terms,paths,dims);
+            markDirty(PROC_GENERATION);
+        }
+    }else{
+        Samples = new mat3d(terms,paths,dims);
+        markDirty(PROC_GENERATION);
+    }
+
+    if (isDirty(PROC_GENERATION)){
+        Sim->ngen(*Samples,threads);
+    }
+
+    double * X;
+    double * Y;
+    if (isDirty(PROC_EVOLUTION)){
+        X = new double[paths]{0};
+        Y = new double[paths]{0};
+
+        int i,j;
+        for (i = 0; i < paths; ++j){
+            X[i] = vol1*sqrt(dt)*(*Samples)[DIM_X][i][0];
+            Y[i] = vol2*sqrt(dt)*(*Samples)[DIM_X][i][0];
+        }
+
+        for (i = 1; i < paths; ++j){
+            for (j = 0; j < terms; ++j){
+                X[i] += -a*X[i]*dt + vol1*sqrt(dt)*(*Samples)[DIM_X][i][j];
+                Y[i] += -b*Y[i]*dt + vol2*sqrt(dt)*(*Samples)[DIM_X][i][j];
+            }
+        }
+    }
+
+    delete [] X;
+    delete [] Y;
     return 0.0;
 }
 
@@ -135,7 +187,7 @@ Simulation* G2PP::getSimEngine(){
 void G2PP::markDirtyFrom(int step){
     if (step){
         int i;
-        for (i=step; i<PROC_END; i<<=1u){
+        for (i=step; i<NUM_PROCS; i<<=1u){
             Dirty|=i;
         }
     }
@@ -147,7 +199,7 @@ void G2PP::markDirty(int step){
 
 void G2PP::markDirtyAll(){
     int i;
-    for (i=PROC_GENERATION; i<PROC_END; i<<=1u){
+    for (i=PROC_GENERATION; i<NUM_PROCS; i<<=1u){
         Dirty|=i;
     }
 }

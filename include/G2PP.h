@@ -88,6 +88,7 @@ class G2PP : public RateModel{
        
         //Model parameters 
         double *Coefs;
+        int    *Peris;
         int    *Flags;
 
     public:
