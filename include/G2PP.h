@@ -99,8 +99,10 @@ class G2PP : public RateModel{
         ~G2PP();
 
         //----Calculation Services-----
-        double M(double, double, double, double);
-        double V(double, double);
+        double getZCBPrice(double, double);
+        double getZCBPrice(double *, double);
+        double M(double, double, double);
+        double V(double);
 
         //----Getters & Setters-----
         void setParameter(Parameter, double);
